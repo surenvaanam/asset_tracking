@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html>
+<head>
+
+    <style>
+    #map {
+        height: 100%;
+    }
+    html, body {
+        height: 100%;
+        margin: 0;
+        padding: 0;
+    }
+
+</style>
+</head>
+
+<body>
+    <div id="map"></div>
+
+    <!-- jQuery CDN -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+
+    <!-- Firebase -->
+    <script src="https://www.gstatic.com/firebasejs/4.12.1/firebase.js"></script>
+    <script>
+            // Replace your Configuration here..
+            var config = {
+                apiKey: "AIzaSyC92PtEQAhrZQ64AQ2CYqLwlVqiqxH1RxA",
+                authDomain: "qwer-8090a.firebaseapp.com",
+                databaseURL: "https://qwer-8090a.firebaseio.com",
+                projectId: "qwer-8090a",
+                storageBucket: "qwer-8090a.appspot.com",
+                messagingSenderId: "735820603365"
+            };
+            firebase.initializeApp(config);
+        </script>
+
+        <script>
+
+            // markers array to store all the markers, so that we could remove marker when any assets data is changed or if it is remove from database...
+            var markers = [];
+            var s = [];
+            var map;
+            function initMap() { // Google Map Initialization... 
+                map = new google.maps.Map(document.getElementById('map'), {
+                    zoom: 8,
+                    center: new google.maps.LatLng(11.8271, 78.6569)
+                });
+            }
+
+              //the value passed along with url is retrieved with the below function
+              window.onload = function ()
+              {
+                var url = document.location.href,
+                params = url.split('?')[1].split('&'),
+                data = {}, tmp;
+                for (i = 0, l = params.length; i < l; i++) {
+                    tmp = params[i].split('=');
+                    data[tmp[0]] = tmp[1];
+                }
+                var a= data.id;
+    //the string is seperated with commas and stored in javascript array
+    window['s']=a.split("%2C");
+    // myFunction(s);
+    // ++++
+    const sur = a.split('%2C');
+    for( var j=0; j<s.length;j++)
+    {
+      s[j]=String(sur[j]);
+  }
+  console.log('s--------------------->',s);
+}
+
+            // This Function will create a marker on the map indicating the location of the asset
+            function addmarker(data) {
+                var uluru = { lat: data.val().lat, lng: data.val().lng };
+                var marker = new google.maps.Marker({
+                    position: uluru,
+                    map: map
+                });
+                markers[data.key] = marker; // add marker in the markers array...
+            }
+
+            // get firebase database reference...
+            var asset = firebase.database().ref('rspb').child('/');
+
+
+            // this event will be triggered when a new asset is added in the database...
+            asset.on('child_added', function (data) {
+                if(s.includes(data.key)){
+                    console.log('child_added----------->',data.val().id);
+                    addmarker(data);
+                }
+            });
+
+
+            // this event will be triggered on location change of any asset...
+            asset.on('child_changed', function (data) {
+                if(s.includes(data.key)){
+                    console.log('child_changed----------->',data.key);                
+                    markers[data.key].setMap(null);
+                    addmarker(data);
+                }
+            });
+
+            // this event will be triggered when a asset is removed from the database
+            asset.on('child_removed', function (data) {
+                markers[data.key].setMap(null);
+                document.getElementById("cars").innerHTML = cars_count;
+            });
+        </script>
+
+        <script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyC7DtKqWoAtgKFmYtUu-PceyA7bV1Y9NTU&callback=initMap">
+        </script>
+
+    </body>
+    </html>

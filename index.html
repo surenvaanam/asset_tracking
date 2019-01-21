@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Vaanam Tech-AT</title>
+</head>
+<body>
+  <form action="abc.html" method="get">
+    <center>
+      <h1>Welcome to Asset Tracking</h1>
+      <input type="text" name="id" placeholder="Enter your traking id">
+      <br><br>
+      <button type="submit" onclick="testJS()">Track</button>
+      <br><br>
+      <label>If more than one asset to be tracked, give id's seperated by commas example:-> 1,2 </label>
+    </center>
+    <script>
+      //the tracking id is obtained and passed along with url to another page !
+      function testJS() {
+        var b = document.getElementById('name').value,
+        url = 'file:///C:/Users/Admin.Suren/Desktop/abc.html?id=' + encodeURIComponent(b);
+        document.location.href = url;
+      }
+    </script>
+  </form>
+</body>
+</html>
+
+

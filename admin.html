@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html>
+    <head>
+
+        <style>
+            #map {
+                height: 100%;
+            }
+            html, body {
+                height: 100%;
+                margin: 0;
+                padding: 0;
+            }
+            #over_map {
+                position: absolute;
+                top: 10px;
+                left: 89%;
+                z-index: 99;
+                background-color: #ccffcc;
+                padding: 10px;
+            }
+        </style>
+    </head>
+
+    <body>
+        <div id="map"></div>
+
+        <!-- jQuery CDN -->
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+
+        <!-- Firebase -->
+        <script src="https://www.gstatic.com/firebasejs/4.12.1/firebase.js"></script>
+        <script>
+            // Replace your Configuration here..
+            var config = {
+                apiKey: "AIzaSyC92PtEQAhrZQ64AQ2CYqLwlVqiqxH1RxA",
+                authDomain: "qwer-8090a.firebaseapp.com",
+                databaseURL: "https://qwer-8090a.firebaseio.com",
+                projectId: "qwer-8090a",
+                storageBucket: "qwer-8090a.appspot.com",
+                messagingSenderId: "735820603365"
+            };
+            firebase.initializeApp(config);
+        </script>
+
+        <script>
+
+            // markers array to store all the markers, so that we could remove marker when any asset changes its location or gets deleted from the database.
+            var markers = [];
+            var map;
+
+            function initMap() { // Google Map Initialization... 
+                map = new google.maps.Map(document.getElementById('map'), {
+                    zoom: 8,
+                    center: new google.maps.LatLng(11.8271, 78.6569)
+                });
+            }
+
+            // This Function will create a marker for the asset in the map
+            function AddCar(data) {
+                var uluru = { lat: data.val().lat, lng: data.val().lng };
+                var marker = new google.maps.Marker({
+                    position: uluru,
+                    map: map
+                });
+                markers[data.key] = marker; // add marker in the markers array...
+            }
+
+            // get firebase database reference...
+            var cars_Ref = firebase.database().ref('rspb').child('/');
+
+
+            // this event will be triggered when a new asset is added in the database...
+            cars_Ref.on('child_added', function (data) {
+                AddCar(data);
+            });
+
+
+            // this event will be triggered on location change of the asset
+            cars_Ref.on('child_changed', function (data) {
+                markers[data.key].setMap(null);
+                AddCar(data);
+            });
+
+            // If any asset is removed from the database, then the marker is removed from the map
+            cars_Ref.on('child_removed', function (data) {
+                markers[data.key].setMap(null);
+            });
+
+        </script>
+        <script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyC7DtKqWoAtgKFmYtUu-PceyA7bV1Y9NTU&callback=initMap">
+        </script>
+
+    </body>
+</html>
